@@ -1,13 +1,15 @@
 """
-Kubernetes Security Scanner
-
-A comprehensive security auditing tool for Kubernetes clusters.
+Security check modules for Kubernetes resources
 """
 
-__version__ = "1.0.0"
-__author__ = "Your Name"
-__license__ = "MIT"
+from src.checks.pod_security import PodSecurityChecker
+from src.checks.rbac_checker import RBACChecker
+from src.checks.network_policy import NetworkPolicyChecker
+from src.checks.resource_limits import ResourceLimitChecker
 
-from src.scanner import main
-
-__all__ = ["main"]
+__all__ = [
+    "PodSecurityChecker",
+    "RBACChecker",
+    "NetworkPolicyChecker",
+    "ResourceLimitChecker"
+]
