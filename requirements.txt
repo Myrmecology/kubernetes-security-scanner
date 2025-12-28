@@ -31,4 +31,4 @@ safety==3.2.8
 
 # Utilities - UPDATED to patch vulnerabilities
 python-dateutil==2.9.0
-requests==2.32.3
+requests==2.32.4
