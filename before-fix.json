@@ -1,0 +1,184 @@
+{
+  "scan_metadata": {
+    "timestamp": "2025-12-28T15:39:57.635014",
+    "total_findings": 16,
+    "scanner_version": "1.0.0"
+  },
+  "summary": {
+    "severity_breakdown": {
+      "CRITICAL": 5,
+      "HIGH": 6,
+      "LOW": 3,
+      "MEDIUM": 2
+    },
+    "category_breakdown": {
+      "Pod Security": 8,
+      "RBAC": 5,
+      "Network Policy": 1,
+      "Resource Limits": 2
+    },
+    "total_issues": 16
+  },
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "category": "Pod Security",
+      "title": "Container running as root (UID 0)",
+      "resource_name": "insecure-nginx-root/nginx",
+      "namespace": "default",
+      "description": "Container \"nginx\" in pod \"insecure-nginx-root\" is running as root user (UID 0)",
+      "recommendation": "Set runAsUser to a non-zero value in securityContext",
+      "remediation": "Add securityContext with runAsUser: 1000 (or any non-zero UID)"
+    },
+    {
+      "severity": "HIGH",
+      "category": "Pod Security",
+      "title": "Privilege escalation allowed",
+      "resource_name": "insecure-nginx-root/nginx",
+      "namespace": "default",
+      "description": "Container allows privilege escalation",
+      "recommendation": "Set allowPrivilegeEscalation: false in securityContext",
+      "remediation": "Add allowPrivilegeEscalation: false to container securityContext"
+    },
+    {
+      "severity": "LOW",
+      "category": "Pod Security",
+      "title": "Root filesystem is writable",
+      "resource_name": "insecure-nginx-root/nginx",
+      "namespace": "default",
+      "description": "Container root filesystem is not read-only",
+      "recommendation": "Set readOnlyRootFilesystem: true unless write access is required",
+      "remediation": "Add readOnlyRootFilesystem: true to securityContext and use volumes for writable data"
+    },
+    {
+      "severity": "CRITICAL",
+      "category": "Pod Security",
+      "title": "Container running as root (UID 0)",
+      "resource_name": "privileged-container/debug",
+      "namespace": "default",
+      "description": "Container \"debug\" in pod \"privileged-container\" is running as root user (UID 0)",
+      "recommendation": "Set runAsUser to a non-zero value in securityContext",
+      "remediation": "Add securityContext with runAsUser: 1000 (or any non-zero UID)"
+    },
+    {
+      "severity": "CRITICAL",
+      "category": "Pod Security",
+      "title": "Privileged container detected",
+      "resource_name": "privileged-container/debug",
+      "namespace": "default",
+      "description": "Container \"debug\" is running in privileged mode",
+      "recommendation": "Remove privileged: true from securityContext unless absolutely necessary",
+      "remediation": "Set privileged: false or remove the privileged field entirely"
+    },
+    {
+      "severity": "HIGH",
+      "category": "Pod Security",
+      "title": "Dangerous capabilities granted",
+      "resource_name": "privileged-container/debug",
+      "namespace": "default",
+      "description": "Container has dangerous capabilities: SYS_ADMIN, NET_ADMIN",
+      "recommendation": "Remove unnecessary capabilities, especially CAP_SYS_ADMIN and CAP_NET_ADMIN",
+      "remediation": "Drop all capabilities and add only required ones using drop: [\"ALL\"] and add: [...]"
+    },
+    {
+      "severity": "HIGH",
+      "category": "Pod Security",
+      "title": "Privilege escalation allowed",
+      "resource_name": "privileged-container/debug",
+      "namespace": "default",
+      "description": "Container allows privilege escalation",
+      "recommendation": "Set allowPrivilegeEscalation: false in securityContext",
+      "remediation": "Add allowPrivilegeEscalation: false to container securityContext"
+    },
+    {
+      "severity": "LOW",
+      "category": "Pod Security",
+      "title": "Root filesystem is writable",
+      "resource_name": "privileged-container/debug",
+      "namespace": "default",
+      "description": "Container root filesystem is not read-only",
+      "recommendation": "Set readOnlyRootFilesystem: true unless write access is required",
+      "remediation": "Add readOnlyRootFilesystem: true to securityContext and use volumes for writable data"
+    },
+    {
+      "severity": "HIGH",
+      "category": "RBAC",
+      "title": "cluster-admin role granted to Group",
+      "resource_name": "cluster-admin",
+      "namespace": null,
+      "description": "Group \"system:masters\" has cluster-admin privileges (full cluster access)",
+      "recommendation": "Use least-privilege RBAC - grant only necessary permissions",
+      "remediation": "Create a custom role with specific permissions instead of cluster-admin"
+    },
+    {
+      "severity": "CRITICAL",
+      "category": "RBAC",
+      "title": "cluster-admin role granted to ServiceAccount",
+      "resource_name": "dangerous-cluster-admin-binding",
+      "namespace": "default",
+      "description": "ServiceAccount \"default\" has cluster-admin privileges (full cluster access)",
+      "recommendation": "Use least-privilege RBAC - grant only necessary permissions",
+      "remediation": "Create a custom role with specific permissions instead of cluster-admin"
+    },
+    {
+      "severity": "HIGH",
+      "category": "RBAC",
+      "title": "cluster-admin role granted to Group",
+      "resource_name": "kubeadm:cluster-admins",
+      "namespace": null,
+      "description": "Group \"kubeadm:cluster-admins\" has cluster-admin privileges (full cluster access)",
+      "recommendation": "Use least-privilege RBAC - grant only necessary permissions",
+      "remediation": "Create a custom role with specific permissions instead of cluster-admin"
+    },
+    {
+      "severity": "CRITICAL",
+      "category": "RBAC",
+      "title": "cluster-admin role granted to ServiceAccount",
+      "resource_name": "minikube-rbac",
+      "namespace": "kube-system",
+      "description": "ServiceAccount \"default\" has cluster-admin privileges (full cluster access)",
+      "recommendation": "Use least-privilege RBAC - grant only necessary permissions",
+      "remediation": "Create a custom role with specific permissions instead of cluster-admin"
+    },
+    {
+      "severity": "MEDIUM",
+      "category": "RBAC",
+      "title": "Elevated role \"admin\" granted to ServiceAccount",
+      "resource_name": "admin-to-default",
+      "namespace": "default",
+      "description": "ServiceAccount \"app-service-account\" has \"admin\" role with broad permissions",
+      "recommendation": "Review if this level of access is necessary",
+      "remediation": "Consider creating a custom role with minimal required permissions"
+    },
+    {
+      "severity": "HIGH",
+      "category": "Network Policy",
+      "title": "No network policies defined",
+      "resource_name": "NetworkPolicy",
+      "namespace": "default",
+      "description": "Namespace \"default\" has 2 pods but no network policies",
+      "recommendation": "Implement network policies to control traffic between pods",
+      "remediation": "Create default-deny ingress/egress policies and allow only necessary traffic"
+    },
+    {
+      "severity": "LOW",
+      "category": "Resource Limits",
+      "title": "Missing CPU limit",
+      "resource_name": "insecure-nginx-root/nginx",
+      "namespace": "default",
+      "description": "Container has no CPU limit defined",
+      "recommendation": "Set CPU limits to prevent resource exhaustion",
+      "remediation": "Add resources.limits.cpu (e.g., \"500m\" or \"1\")"
+    },
+    {
+      "severity": "MEDIUM",
+      "category": "Resource Limits",
+      "title": "Missing memory limit",
+      "resource_name": "insecure-nginx-root/nginx",
+      "namespace": "default",
+      "description": "Container has no memory limit defined - risk of OOM issues",
+      "recommendation": "Set memory limits to prevent pod from consuming excessive memory",
+      "remediation": "Add resources.limits.memory (e.g., \"512Mi\" or \"1Gi\")"
+    }
+  ]
+}

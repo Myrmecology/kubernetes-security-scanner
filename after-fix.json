@@ -1,0 +1,49 @@
+{
+  "scan_metadata": {
+    "timestamp": "2025-12-28T15:45:50.797233",
+    "total_findings": 3,
+    "scanner_version": "1.0.0"
+  },
+  "summary": {
+    "severity_breakdown": {
+      "HIGH": 2,
+      "CRITICAL": 1
+    },
+    "category_breakdown": {
+      "RBAC": 3
+    },
+    "total_issues": 3
+  },
+  "findings": [
+    {
+      "severity": "HIGH",
+      "category": "RBAC",
+      "title": "cluster-admin role granted to Group",
+      "resource_name": "cluster-admin",
+      "namespace": null,
+      "description": "Group \"system:masters\" has cluster-admin privileges (full cluster access)",
+      "recommendation": "Use least-privilege RBAC - grant only necessary permissions",
+      "remediation": "Create a custom role with specific permissions instead of cluster-admin"
+    },
+    {
+      "severity": "HIGH",
+      "category": "RBAC",
+      "title": "cluster-admin role granted to Group",
+      "resource_name": "kubeadm:cluster-admins",
+      "namespace": null,
+      "description": "Group \"kubeadm:cluster-admins\" has cluster-admin privileges (full cluster access)",
+      "recommendation": "Use least-privilege RBAC - grant only necessary permissions",
+      "remediation": "Create a custom role with specific permissions instead of cluster-admin"
+    },
+    {
+      "severity": "CRITICAL",
+      "category": "RBAC",
+      "title": "cluster-admin role granted to ServiceAccount",
+      "resource_name": "minikube-rbac",
+      "namespace": "kube-system",
+      "description": "ServiceAccount \"default\" has cluster-admin privileges (full cluster access)",
+      "recommendation": "Use least-privilege RBAC - grant only necessary permissions",
+      "remediation": "Create a custom role with specific permissions instead of cluster-admin"
+    }
+  ]
+}

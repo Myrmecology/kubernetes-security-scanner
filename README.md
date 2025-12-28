@@ -1,5 +1,7 @@
 # Kubernetes Security Scanner
 
+# FOR A VIDEO DEMO OF THIS PROJECT PLEASE VISIT: https://www.youtube.com/watch?v=EZIl-y_G2bo 
+
 A comprehensive security auditing tool for Kubernetes clusters that identifies misconfigurations, security vulnerabilities, and compliance violations. This project demonstrates expertise in cloud security, DevOps practices, and Kubernetes cluster management.
 
 ## Table of Contents
