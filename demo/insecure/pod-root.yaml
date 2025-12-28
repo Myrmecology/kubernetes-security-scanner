@@ -1,0 +1,25 @@
+# INSECURE EXAMPLE - Pod running as root
+# This pod demonstrates a critical security issue: running as root user (UID 0)
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: insecure-nginx-root
+  namespace: default
+  labels:
+    app: nginx
+    security: vulnerable
+spec:
+  containers:
+  - name: nginx
+    image: nginx:latest
+    ports:
+    - containerPort: 80
+    securityContext:
+      runAsUser: 0  # CRITICAL: Running as root!
+      runAsNonRoot: false
+    resources:
+      # Also missing resource limits (another issue)
+      requests:
+        memory: "64Mi"
+        cpu: "250m"

@@ -1,0 +1,38 @@
+# INSECURE EXAMPLE - Overly permissive RBAC
+# This grants cluster-admin privileges to the default service account
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: default
+  namespace: default
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: dangerous-cluster-admin-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin  # CRITICAL: cluster-admin to default SA!
+subjects:
+- kind: ServiceAccount
+  name: default  # CRITICAL: default service account!
+  namespace: default
+
+---
+# Another bad example - overly broad permissions in namespace
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: admin-to-default
+  namespace: default
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: admin  # HIGH: admin role to service account
+subjects:
+- kind: ServiceAccount
+  name: app-service-account
+  namespace: default

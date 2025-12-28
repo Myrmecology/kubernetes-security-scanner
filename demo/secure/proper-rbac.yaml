@@ -1,0 +1,84 @@
+# SECURE EXAMPLE - Least-privilege RBAC
+# This demonstrates proper RBAC with minimal necessary permissions
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: app-reader-sa
+  namespace: default
+
+---
+# Custom Role with minimal permissions (read-only)
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: pod-reader
+  namespace: default
+rules:
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get", "list", "watch"]  # Read-only access
+- apiGroups: [""]
+  resources: ["configmaps"]
+  verbs: ["get", "list"]
+
+---
+# Bind the limited role to the service account
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: read-pods-binding
+  namespace: default
+subjects:
+- kind: ServiceAccount
+  name: app-reader-sa
+  namespace: default
+roleRef:
+  kind: Role
+  name: pod-reader
+  apiGroup: rbac.authorization.k8s.io
+
+---
+# Example: Service account for a specific application with write access
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: app-writer-sa
+  namespace: default
+
+---
+# Custom Role with specific write permissions
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: configmap-writer
+  namespace: default
+rules:
+- apiGroups: [""]
+  resources: ["configmaps"]
+  verbs: ["get", "list", "create", "update", "patch"]  # Specific resources only
+- apiGroups: [""]
+  resources: ["secrets"]
+  verbs: ["get"]  # Read-only for secrets
+
+---
+# Bind the writer role
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: write-configmaps-binding
+  namespace: default
+subjects:
+- kind: ServiceAccount
+  name: app-writer-sa
+  namespace: default
+roleRef:
+  kind: Role
+  name: configmap-writer
+  apiGroup: rbac.authorization.k8s.io
+
+---
+# IMPORTANT: Never use cluster-admin or admin roles unless absolutely necessary
+# IMPORTANT: Never grant elevated permissions to the 'default' service account
+# IMPORTANT: Create dedicated service accounts for each application
+# IMPORTANT: Follow the principle of least privilege

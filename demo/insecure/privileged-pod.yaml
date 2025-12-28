@@ -1,0 +1,30 @@
+# INSECURE EXAMPLE - Privileged container
+# This pod has privileged mode enabled, granting full host access
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: privileged-container
+  namespace: default
+  labels:
+    app: debug-tools
+    security: vulnerable
+spec:
+  containers:
+  - name: debug
+    image: ubuntu:latest
+    command: ["/bin/sleep", "3600"]
+    securityContext:
+      privileged: true  # CRITICAL: Privileged mode enabled!
+      allowPrivilegeEscalation: true
+      capabilities:
+        add:
+          - SYS_ADMIN  # CRITICAL: Dangerous capability!
+          - NET_ADMIN
+    resources:
+      requests:
+        memory: "128Mi"
+        cpu: "100m"
+      limits:
+        memory: "256Mi"
+        cpu: "200m"

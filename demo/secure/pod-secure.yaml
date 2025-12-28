@@ -1,0 +1,55 @@
+# SECURE EXAMPLE - Properly configured pod
+# This pod demonstrates security best practices
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: secure-nginx
+  namespace: default
+  labels:
+    app: nginx
+    security: hardened
+spec:
+  containers:
+  - name: nginx
+    image: nginx:latest
+    ports:
+    - containerPort: 80
+    securityContext:
+      # Security best practices
+      runAsUser: 1000  # Non-root user
+      runAsNonRoot: true  # Enforce non-root
+      allowPrivilegeEscalation: false  # Prevent privilege escalation
+      readOnlyRootFilesystem: true  # Read-only root filesystem
+      capabilities:
+        drop:
+          - ALL  # Drop all capabilities
+    resources:
+      # Resource limits prevent DoS attacks
+      requests:
+        memory: "64Mi"
+        cpu: "250m"
+      limits:
+        memory: "128Mi"
+        cpu: "500m"
+    volumeMounts:
+    - name: cache
+      mountPath: /var/cache/nginx
+    - name: run
+      mountPath: /var/run
+  volumes:
+  # Writable volumes for nginx (since root is read-only)
+  - name: cache
+    emptyDir: {}
+  - name: run
+    emptyDir: {}
+  # Use a dedicated service account (not default)
+  serviceAccountName: nginx-sa
+  automountServiceAccountToken: false  # Don't auto-mount unless needed
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: nginx-sa
+  namespace: default
