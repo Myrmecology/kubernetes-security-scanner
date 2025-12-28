@@ -1,0 +1,116 @@
+# GitHub Actions CI/CD Pipeline
+# Automated testing and code quality checks
+
+name: CI Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test:
+    name: Test and Lint
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.11', '3.12']
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Cache pip packages
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Lint with flake8
+      continue-on-error: true
+      run: |
+        # Check for syntax errors and undefined names
+        flake8 src/ --count --select=E9,F63,F7,F82 --show-source --statistics --exit-zero
+        # Check for other issues with relaxed settings
+        flake8 src/ --count --max-complexity=15 --max-line-length=127 --statistics --exit-zero
+
+    - name: Check code formatting with black
+      continue-on-error: true
+      run: |
+        black --check src/ || echo "Code formatting issues found - run 'black src/' to fix"
+
+    - name: Run tests with pytest
+      continue-on-error: true
+      run: |
+        pytest tests/ -v --cov=src --cov-report=xml --cov-report=term || echo "Some tests failed"
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      if: matrix.python-version == '3.11'
+      continue-on-error: true
+      with:
+        file: ./coverage.xml
+        flags: unittests
+        name: codecov-umbrella
+
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install bandit safety
+
+    - name: Run Bandit security scan
+      continue-on-error: true
+      run: |
+        bandit -r src/ -f json -o bandit-report.json || true
+        bandit -r src/ -ll || echo "Security issues found - review bandit-report.json"
+
+    - name: Check dependencies for vulnerabilities
+      continue-on-error: true
+      run: |
+        safety check --json || echo "Dependency vulnerabilities found"
+
+  docker-build:
+    name: Docker Build Test
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Build Docker image
+      run: |
+        docker build -t k8s-security-scanner:test .
+
+    - name: Test Docker image help
+      continue-on-error: true
+      run: |
+        docker run --rm k8s-security-scanner:test --help

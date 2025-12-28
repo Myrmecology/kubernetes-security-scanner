@@ -40,12 +40,18 @@ class SecurityScanner:
             print(f"{Fore.CYAN}🔌 Connecting to Kubernetes cluster...{Style.RESET_ALL}")
             self.k8s_client = K8sClient()
             cluster_info = self.k8s_client.get_cluster_info()
-            print(f"{Fore.GREEN}✅ Connected to cluster: {cluster_info['name']}{Style.RESET_ALL}")
+            print(
+                f"{Fore.GREEN}✅ Connected to cluster: {cluster_info['name']}{Style.RESET_ALL}"
+            )
             print(f"{Fore.CYAN}   Server: {cluster_info['server']}{Style.RESET_ALL}")
             return True
         except Exception as e:
-            print(f"{Fore.RED}❌ Failed to connect to cluster: {str(e)}{Style.RESET_ALL}")
-            print(f"{Fore.YELLOW}💡 Make sure kubectl is configured and you have cluster access{Style.RESET_ALL}")
+            print(
+                f"{Fore.RED}❌ Failed to connect to cluster: {str(e)}{Style.RESET_ALL}"
+            )
+            print(
+                f"{Fore.YELLOW}💡 Make sure kubectl is configured and you have cluster access{Style.RESET_ALL}"
+            )
             return False
 
     def run_checks(self):
@@ -57,22 +63,28 @@ class SecurityScanner:
         # Get namespaces to scan
         if self.namespace:
             namespaces = [self.namespace]
-            print(f"{Fore.CYAN}📦 Scanning namespace: {self.namespace}{Style.RESET_ALL}\n")
+            print(
+                f"{Fore.CYAN}📦 Scanning namespace: {self.namespace}{Style.RESET_ALL}\n"
+            )
         else:
             namespaces = self.k8s_client.get_namespaces()
-            print(f"{Fore.CYAN}📦 Scanning all namespaces ({len(namespaces)} found){Style.RESET_ALL}\n")
+            print(
+                f"{Fore.CYAN}📦 Scanning all namespaces ({len(namespaces)} found){Style.RESET_ALL}\n"
+            )
 
         # Initialize checkers
         checkers = [
             PodSecurityChecker(self.k8s_client),
             RBACChecker(self.k8s_client),
             NetworkPolicyChecker(self.k8s_client),
-            ResourceLimitChecker(self.k8s_client)
+            ResourceLimitChecker(self.k8s_client),
         ]
 
         # Run each checker
         for checker in checkers:
-            print(f"{Fore.YELLOW}⚡ Running {checker.__class__.__name__}...{Style.RESET_ALL}")
+            print(
+                f"{Fore.YELLOW}⚡ Running {checker.__class__.__name__}...{Style.RESET_ALL}"
+            )
             try:
                 findings = checker.check(namespaces)
                 self.findings.extend(findings)
@@ -92,7 +104,9 @@ class SecurityScanner:
             report = reporter.generate_json_report()
             print(report)
         else:
-            print(f"{Fore.RED}Unsupported output format: {self.output_format}{Style.RESET_ALL}")
+            print(
+                f"{Fore.RED}Unsupported output format: {self.output_format}{Style.RESET_ALL}"
+            )
 
     def save_report(self, filename):
         """Save report to file"""
@@ -102,7 +116,9 @@ class SecurityScanner:
                 reporter.save_json_report(filename)
                 print(f"\n{Fore.GREEN}📄 Report saved to: {filename}{Style.RESET_ALL}")
             else:
-                print(f"{Fore.YELLOW}File saving only supported for JSON format{Style.RESET_ALL}")
+                print(
+                    f"{Fore.YELLOW}File saving only supported for JSON format{Style.RESET_ALL}"
+                )
         except Exception as e:
             print(f"{Fore.RED}Failed to save report: {str(e)}{Style.RESET_ALL}")
 
@@ -125,32 +141,33 @@ Examples:
 
   # Scan and save results
   python -m src.scanner --namespace default --output json --file results.json
-        """
+        """,
     )
 
     parser.add_argument(
-        "-n", "--namespace",
+        "-n",
+        "--namespace",
         help="Specific namespace to scan (default: all namespaces)",
-        default=None
+        default=None,
     )
 
     parser.add_argument(
-        "-o", "--output",
+        "-o",
+        "--output",
         choices=["text", "json"],
         default="text",
-        help="Output format (default: text)"
+        help="Output format (default: text)",
     )
 
     parser.add_argument(
-        "-f", "--file",
-        help="Output file path (only for JSON format)",
-        default=None
+        "-f", "--file", help="Output file path (only for JSON format)", default=None
     )
 
     parser.add_argument(
-        "-v", "--version",
+        "-v",
+        "--version",
         action="version",
-        version="Kubernetes Security Scanner v1.0.0"
+        version="Kubernetes Security Scanner v1.0.0",
     )
 
     args = parser.parse_args()
@@ -158,14 +175,13 @@ Examples:
     # Print banner
     print(f"\n{Fore.CYAN}{'=' * 60}{Style.RESET_ALL}")
     print(f"{Fore.CYAN}  Kubernetes Security Scanner v1.0.0{Style.RESET_ALL}")
-    print(f"{Fore.CYAN}  Scanning for misconfigurations and vulnerabilities{Style.RESET_ALL}")
+    print(
+        f"{Fore.CYAN}  Scanning for misconfigurations and vulnerabilities{Style.RESET_ALL}"
+    )
     print(f"{Fore.CYAN}{'=' * 60}{Style.RESET_ALL}\n")
 
     # Initialize scanner
-    scanner = SecurityScanner(
-        namespace=args.namespace,
-        output_format=args.output
-    )
+    scanner = SecurityScanner(namespace=args.namespace, output_format=args.output)
 
     # Connect to cluster
     if not scanner.connect_to_cluster():

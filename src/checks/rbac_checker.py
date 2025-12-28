@@ -50,12 +50,14 @@ class RBACChecker:
                 binding_name = binding.metadata.name
 
                 # Check if binding grants cluster-admin
-                if binding.role_ref.name == 'cluster-admin':
+                if binding.role_ref.name == "cluster-admin":
                     for subject in binding.subjects or []:
                         self._flag_cluster_admin_binding(binding_name, subject)
 
                 # Check for wildcard permissions
-                self._check_wildcard_permissions(binding_name, binding.role_ref.name, 'cluster')
+                self._check_wildcard_permissions(
+                    binding_name, binding.role_ref.name, "cluster"
+                )
 
         except Exception as e:
             pass
@@ -69,9 +71,11 @@ class RBACChecker:
                 binding_name = binding.metadata.name
 
                 # Check if binding grants admin role
-                if binding.role_ref.name in ['admin', 'cluster-admin', 'edit']:
+                if binding.role_ref.name in ["admin", "cluster-admin", "edit"]:
                     for subject in binding.subjects or []:
-                        self._flag_elevated_binding(binding_name, namespace, subject, binding.role_ref.name)
+                        self._flag_elevated_binding(
+                            binding_name, namespace, subject, binding.role_ref.name
+                        )
 
         except Exception as e:
             pass
@@ -80,21 +84,23 @@ class RBACChecker:
         """Flag cluster-admin bindings as critical"""
         subject_kind = subject.kind
         subject_name = subject.name
-        subject_namespace = getattr(subject, 'namespace', 'N/A')
+        subject_namespace = getattr(subject, "namespace", "N/A")
 
         # Especially critical if default service account has cluster-admin
-        severity = 'CRITICAL' if subject_name == 'default' else 'HIGH'
+        severity = "CRITICAL" if subject_name == "default" else "HIGH"
 
-        self.findings.append({
-            'severity': severity,
-            'category': 'RBAC',
-            'title': f'cluster-admin role granted to {subject_kind}',
-            'resource_name': binding_name,
-            'namespace': subject_namespace,
-            'description': f'{subject_kind} "{subject_name}" has cluster-admin privileges (full cluster access)',
-            'recommendation': 'Use least-privilege RBAC - grant only necessary permissions',
-            'remediation': f'Create a custom role with specific permissions instead of cluster-admin'
-        })
+        self.findings.append(
+            {
+                "severity": severity,
+                "category": "RBAC",
+                "title": f"cluster-admin role granted to {subject_kind}",
+                "resource_name": binding_name,
+                "namespace": subject_namespace,
+                "description": f'{subject_kind} "{subject_name}" has cluster-admin privileges (full cluster access)',
+                "recommendation": "Use least-privilege RBAC - grant only necessary permissions",
+                "remediation": f"Create a custom role with specific permissions instead of cluster-admin",
+            }
+        )
 
     def _flag_elevated_binding(self, binding_name, namespace, subject, role_name):
         """Flag elevated role bindings"""
@@ -102,24 +108,26 @@ class RBACChecker:
         subject_name = subject.name
 
         # Critical if default service account has elevated permissions
-        severity = 'HIGH' if subject_name == 'default' else 'MEDIUM'
+        severity = "HIGH" if subject_name == "default" else "MEDIUM"
 
-        self.findings.append({
-            'severity': severity,
-            'category': 'RBAC',
-            'title': f'Elevated role "{role_name}" granted to {subject_kind}',
-            'resource_name': binding_name,
-            'namespace': namespace,
-            'description': f'{subject_kind} "{subject_name}" has "{role_name}" role with broad permissions',
-            'recommendation': 'Review if this level of access is necessary',
-            'remediation': f'Consider creating a custom role with minimal required permissions'
-        })
+        self.findings.append(
+            {
+                "severity": severity,
+                "category": "RBAC",
+                "title": f'Elevated role "{role_name}" granted to {subject_kind}',
+                "resource_name": binding_name,
+                "namespace": namespace,
+                "description": f'{subject_kind} "{subject_name}" has "{role_name}" role with broad permissions',
+                "recommendation": "Review if this level of access is necessary",
+                "remediation": f"Consider creating a custom role with minimal required permissions",
+            }
+        )
 
     def _check_wildcard_permissions(self, binding_name, role_name, scope):
         """Check for wildcard permissions in roles"""
         # This is a simplified check - in production you'd actually inspect the role definition
         # For now, we flag certain known risky role names
-        risky_roles = ['cluster-admin', 'admin', 'edit']
+        risky_roles = ["cluster-admin", "admin", "edit"]
 
         if role_name in risky_roles:
             # Already flagged in other checks
@@ -134,17 +142,19 @@ class RBACChecker:
                 sa_name = sa.metadata.name
 
                 # Flag if default service account is being used with bindings
-                if sa_name == 'default':
-                    self.findings.append({
-                        'severity': 'LOW',
-                        'category': 'RBAC',
-                        'title': f'Default service account in use',
-                        'resource_name': sa_name,
-                        'namespace': namespace,
-                        'description': f'Pods may be using the default service account',
-                        'recommendation': 'Create dedicated service accounts for applications',
-                        'remediation': 'Create app-specific service accounts and update pod specs'
-                    })
+                if sa_name == "default":
+                    self.findings.append(
+                        {
+                            "severity": "LOW",
+                            "category": "RBAC",
+                            "title": f"Default service account in use",
+                            "resource_name": sa_name,
+                            "namespace": namespace,
+                            "description": f"Pods may be using the default service account",
+                            "recommendation": "Create dedicated service accounts for applications",
+                            "remediation": "Create app-specific service accounts and update pod specs",
+                        }
+                    )
 
         except Exception as e:
             pass

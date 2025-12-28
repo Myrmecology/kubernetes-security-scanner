@@ -37,22 +37,18 @@ class K8sClient:
         try:
             # Get current context
             contexts, active_context = config.list_kube_config_contexts()
-            cluster_name = active_context['context']['cluster']
-            
+            cluster_name = active_context["context"]["cluster"]
+
             # Get server info
             version_info = client.VersionApi().get_code()
-            
+
             return {
-                'name': cluster_name,
-                'server': active_context['context'].get('cluster', 'unknown'),
-                'version': f"{version_info.major}.{version_info.minor}"
+                "name": cluster_name,
+                "server": active_context["context"].get("cluster", "unknown"),
+                "version": f"{version_info.major}.{version_info.minor}",
             }
         except Exception as e:
-            return {
-                'name': 'unknown',
-                'server': 'unknown',
-                'version': 'unknown'
-            }
+            return {"name": "unknown", "server": "unknown", "version": "unknown"}
 
     def get_namespaces(self):
         """

@@ -11,5 +11,5 @@ __all__ = [
     "PodSecurityChecker",
     "RBACChecker",
     "NetworkPolicyChecker",
-    "ResourceLimitChecker"
+    "ResourceLimitChecker",
 ]
